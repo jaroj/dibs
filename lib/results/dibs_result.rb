@@ -9,11 +9,10 @@ module Dibs
         @result = result_string
         parts = @result.split(/&|=/)
         @result_parsed = Hash[*parts]
-        
       end
 
       def accepted?
-        @result_parsed['status'] == 'ACCEPTED'
+        @result_parsed['status'] == 'ACCEPTED' if @result_parsed['status']
       end
 
       def declined?
@@ -26,7 +25,7 @@ module Dibs
       end
 
       def result_text
-        'not implemented'
+        # @result_parsed['message']
       end
     end
   end

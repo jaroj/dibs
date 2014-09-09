@@ -1,7 +1,7 @@
 # Dibs
 
-DIBS payment API wrapper for Ruby. For now it supports only [`authorize`](http://tech.dibs.dk/dibs_api/payment_functions/authcgi/) and
- [`capture`](http://tech.dibs.dk/dibs_api/payment_functions/capturecgi/) calls.
+DIBS payment API wrapper for Ruby. For now it supports only [`authorize`](http://tech.dibspayment.com/authcgi) and
+ [`capture`](http://tech.dibspayment.com/capturecgi) calls.
 
 ## Installation
 
@@ -22,7 +22,7 @@ Or install it yourself as:
 1. Obtain merchant id, key1 and key2 from http://www.dibs.dk/
 2. Initialize DIBS class:
 
-    `@dibs = ::Dibs::Dibs.new(merchant,key1,key2)`
+    `@dibs = ::Dibs::APIWrapper.new(merchant,key1,key2)`
 
 3. Construct a hash of required parameters:
     ```

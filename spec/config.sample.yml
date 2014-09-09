@@ -2,3 +2,5 @@ default:
   merchant: abc
   key1: foo
   key2: bar
+  username: john
+  password: doe123
