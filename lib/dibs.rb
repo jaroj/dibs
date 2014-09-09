@@ -5,6 +5,8 @@ require 'net/https'
 require 'digest/md5'
 require 'results.rb'
 require 'errors.rb'
+require 'active_support/core_ext'
+
 module Dibs
   class Dibs
     def initialize(merchant, key1, key2)
@@ -29,7 +31,7 @@ module Dibs
       check_for_missing_parameter(
         opts, %w(merchant amount currency cardno expmon expyear cvc orderId))
       md5 = "#{@key1}merchant=#{@merchant}&orderid=#{opts[:orderId]}&currency=#{opts[:currency]}&amount=#{opts[:amount]}"
-      opts[:md5key]=calculate_md5(md5)
+      opts[:md5key] = calculate_md5(md5)
       endpoint = '/cgi-ssl/auth.cgi'
       res = do_http_post(opts, endpoint)
       ::Dibs::Results::Authorize.new(res.body)
