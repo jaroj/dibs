@@ -17,19 +17,17 @@ module Dibs
       end
 
       def declined?
-        not self.accepted?
+        !self.accepted?
       end
 
       def method_missing(sym, *args, &block)
-        return @result_parsed[sym.to_s] if @result_parsed.has_key?(sym.to_s)
+        return @result_parsed[sym.to_s] if @result_parsed.key?(sym.to_s)
         super(sym, *args, &block)
       end
 
       def result_text
-        "not implemented"
+        'not implemented'
       end
-      
     end
-
   end
 end
