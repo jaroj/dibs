@@ -5,6 +5,10 @@ require 'net/https'
 require 'digest/md5'
 require 'results.rb'
 require 'errors.rb'
+
+require 'active_support' # https://github.com/rails/rails/issues/14664
+require 'active_support/core_ext'
+
 module Dibs
   class Dibs
     @@server = "https://payment.architrade.com"
@@ -33,7 +37,7 @@ module Dibs
       opts.symbolize_keys!
       check_for_missing_parameter opts, %w{ merchant amount currency cardno expmon expyear cvc orderId }
       md5 = "#{@key1}merchant=#{@merchant}&orderid=#{opts[:orderId]}&currency=#{opts[:currency]}&amount=#{opts[:amount]}"
-      opts[:md5key]=calculate_md5(md5)
+      opts[:md5key] = calculate_md5(md5)
       endpoint = '/cgi-ssl/auth.cgi'
       res = do_http_post(opts, endpoint)
       ::Dibs::Results::Authorize.new(res.body)

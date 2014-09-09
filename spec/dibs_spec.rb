@@ -17,7 +17,7 @@ describe Dibs do
 
     it "should authorize transaction for properly provided data" do
       res = @dibs.authorize(@good_looking_data)
-      res.accepted?.should == true
+      expect(res.accepted?).to eq true
     end
 
     it "should throw an exception" do
