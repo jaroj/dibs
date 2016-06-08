@@ -38,8 +38,29 @@ module Dibs
       ::Dibs::Results::Authorize.new(res.body)
     end
 
+    def ticket_auth(opts={})
+      # http://tech.dibspayment.com/D2/API/Payment_functions/ticketauthcgi
+      opts = {
+        :merchant=>@merchant,
+        :ticket=>'',
+        :amount=>0,
+        :currency=>'',
+        :orderId=>'',
+        :textreply=>true,
+        :capturenow=>"yes",
+        :test=>test
+      }.merge(opts)
+      opts.symbolize_keys!
+      check_for_missing_parameter opts, %w{ merchant ticket amount currency orderId }
+      md5 = "#{@key1}merchant=#{@merchant}&orderid=#{opts[:orderId]}&currency=#{opts[:currency]}&amount=#{opts[:amount]}"
+      opts[:md5key]=calculate_md5(md5)
+      endpoint = '/cgi-ssl/ticket_auth.cgi'
+      res = do_http_post(opts, endpoint)
+      ::Dibs::Results::Authorize.new(res.body)
+    end
+
     def call_authorize_with_test_data
-      self.authorize 
+      self.authorize
     end
 
     def capture(opts={})
@@ -88,7 +109,7 @@ module Dibs
           end
         end
       end
-    
+
   end
 
 end
