@@ -18,16 +18,17 @@ module Dibs
 
     def authorize(opts={})
       opts = {
-        :merchant=>@merchant,
-        :amount=>0,
-        :currency=>'',
-        :cardno=>'',
-        :expmon=>'',
-        :expyear=>'',
-        :cvc=>'',
-        :orderId=>'',
-        :textreply=>true,
-        :test=>test
+        merchant: @merchant,
+        amount: 0,
+        currency: '',
+        cardno: '',
+        expmon: '',
+        expyear: '',
+        cvc: '',
+        orderId: '',
+        textreply: true,
+        preauth:  false,
+        test: test
       }.merge(opts)
       opts.symbolize_keys!
       check_for_missing_parameter opts, %w{ merchant amount currency cardno expmon expyear cvc orderId }
@@ -41,14 +42,14 @@ module Dibs
     def ticket_auth(opts={})
       # http://tech.dibspayment.com/D2/API/Payment_functions/ticketauthcgi
       opts = {
-        :merchant=>@merchant,
-        :ticket=>'',
-        :amount=>0,
-        :currency=>'',
-        :orderId=>'',
-        :textreply=>true,
-        :capturenow=>"yes",
-        :test=>test
+        merchant: @merchant,
+        ticket: '',
+        amount: 0,
+        currency: '',
+        orderId: '',
+        textreply: true,
+        capturenow: "yes",
+        test: test
       }.merge(opts)
       opts.symbolize_keys!
       check_for_missing_parameter opts, %w{ merchant ticket amount currency orderId }
@@ -65,13 +66,13 @@ module Dibs
 
     def capture(opts={})
       opts = {
-        :merchant=>@merchant,
-        :amount=>0,
-        :transact=>'',
-        :orderId=>'',
-        :textreply=>true,
-        :test=>false,
-        :force=>test
+        merchant: @merchant,
+        amount: 0,
+        transact: '',
+        orderId: '',
+        textreply: true,
+        test: false,
+        force: test
       }.merge(opts)
       if opts[:amount].blank? or opts[:transact].blank? or opts[:orderId].blank?
         raise ::Dibs::Errors::ParameterMissingError
