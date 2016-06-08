@@ -31,7 +31,6 @@ module Dibs
         cvc: '',
         orderId: '',
         textreply: true,
-        preauth:  false,
         test: test
       }.merge(opts)
       opts.symbolize_keys!
