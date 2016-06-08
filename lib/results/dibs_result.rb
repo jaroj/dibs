@@ -9,7 +9,7 @@ module Dibs
         @result = result_string
         parts = @result.split(/&|=/)
         @result_parsed = Hash[*parts]
-        
+
       end
 
       def accepted?
@@ -26,9 +26,9 @@ module Dibs
       end
 
       def result_text
-        "not implemented"
+        raise NotImplementedError.new("not implemented")
       end
-      
+
     end
 
   end
