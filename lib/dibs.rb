@@ -12,6 +12,10 @@ module Dibs
       @merchant, @key1, @key2 = merchant, key1, key2
     end
 
+    def test
+      false
+    end
+
     def authorize(opts={})
       opts = {
         :merchant=>@merchant,
@@ -23,7 +27,7 @@ module Dibs
         :cvc=>'',
         :orderId=>'',
         :textreply=>true,
-        :test=>false
+        :test=>test
       }.merge(opts)
       opts.symbolize_keys!
       check_for_missing_parameter opts, %w{ merchant amount currency cardno expmon expyear cvc orderId }
@@ -46,7 +50,7 @@ module Dibs
         :orderId=>'',
         :textreply=>true,
         :test=>false,
-        :force=>false
+        :force=>test
       }.merge(opts)
       if opts[:amount].blank? or opts[:transact].blank? or opts[:orderId].blank?
         raise ::Dibs::Errors::ParameterMissingError
