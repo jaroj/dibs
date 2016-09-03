@@ -2,3 +2,4 @@
 require 'results/dibs_result.rb'
 require 'results/authorize.rb'
 require 'results/capture.rb'
+require 'results/delticket.rb'

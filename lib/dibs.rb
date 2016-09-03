@@ -63,6 +63,41 @@ module Dibs
       ::Dibs::Results::Authorize.new(res.body)
     end
 
+
+    def delticket(opts={}, username, password)
+      # http://tech.dibspayment.com/D2/API/Payment_functions/delticketcgi
+      # https://<username>:<password>@payment.architrade.com/cgi-adm/delticket.cgi
+      opts = {
+        textreply: 'yes',
+        fullreply: 'yes',
+        postype: 'ssl',
+        merchant: @merchant,
+        ticket: '',
+        test: test
+      }.merge(opts)
+      opts.symbolize_keys!
+      check_for_missing_parameter opts, %w{ merchant ticket }
+
+      if opts[:test]
+        opts[:test] = 'yes'
+      else
+        opts.except!(:test)
+      end
+
+      endpoint = '/cgi-adm/delticket.cgi'
+      uri = URI.parse("https://payment.architrade.com#{endpoint}")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+      request = Net::HTTP::Post.new(uri.request_uri)
+      request.basic_auth(username, password)
+      request.set_form_data(opts)
+      res = http.request(request)
+
+      ::Dibs::Results::Delticket.new(res.body)
+    end
+
     def call_authorize_with_test_data
       self.authorize
     end
@@ -74,7 +109,7 @@ module Dibs
         transact: '',
         orderId: '',
         textreply: true,
-        test: false,
+        test: test,
         force: test
       }.merge(opts)
       if opts[:amount].blank? or opts[:transact].blank? or opts[:orderId].blank?

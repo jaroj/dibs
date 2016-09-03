@@ -9,7 +9,6 @@ module Dibs
         @result = result_string
         parts = @result.split(/&|=/)
         @result_parsed = Hash[*parts]
-
       end
 
       def accepted?
