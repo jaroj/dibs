@@ -5,6 +5,10 @@ require 'net/https'
 require 'digest/md5'
 require 'results.rb'
 require 'errors.rb'
+
+require 'active_support' # https://github.com/rails/rails/issues/14664
+require 'active_support/core_ext'
+
 module Dibs
   class Dibs
     @@server = "https://payment.architrade.com"
@@ -12,41 +16,101 @@ module Dibs
       @merchant, @key1, @key2 = merchant, key1, key2
     end
 
+    def test
+      false
+    end
+
     def authorize(opts={})
       opts = {
-        :merchant=>@merchant,
-        :amount=>0,
-        :currency=>'',
-        :cardno=>'',
-        :expmon=>'',
-        :expyear=>'',
-        :cvc=>'',
-        :orderId=>'',
-        :textreply=>true,
-        :test=>false
+        merchant: @merchant,
+        amount: 0,
+        currency: '',
+        cardno: '',
+        expmon: '',
+        expyear: '',
+        cvc: '',
+        orderId: '',
+        textreply: true,
+        test: test
       }.merge(opts)
       opts.symbolize_keys!
       check_for_missing_parameter opts, %w{ merchant amount currency cardno expmon expyear cvc orderId }
       md5 = "#{@key1}merchant=#{@merchant}&orderid=#{opts[:orderId]}&currency=#{opts[:currency]}&amount=#{opts[:amount]}"
-      opts[:md5key]=calculate_md5(md5)
+      opts[:md5key] = calculate_md5(md5)
       endpoint = '/cgi-ssl/auth.cgi'
       res = do_http_post(opts, endpoint)
       ::Dibs::Results::Authorize.new(res.body)
     end
 
+    def ticket_auth(opts={})
+      # http://tech.dibspayment.com/D2/API/Payment_functions/ticketauthcgi
+      opts = {
+        merchant: @merchant,
+        ticket: '',
+        amount: 0,
+        currency: '',
+        orderId: '',
+        textreply: true,
+        capturenow: "yes",
+        test: test
+      }.merge(opts)
+      opts.symbolize_keys!
+      check_for_missing_parameter opts, %w{ merchant ticket amount currency orderId }
+      md5 = "#{@key1}merchant=#{@merchant}&orderid=#{opts[:orderId]}&currency=#{opts[:currency]}&amount=#{opts[:amount]}"
+      opts[:md5key]=calculate_md5(md5)
+      endpoint = '/cgi-ssl/ticket_auth.cgi'
+      res = do_http_post(opts, endpoint)
+      ::Dibs::Results::Authorize.new(res.body)
+    end
+
+
+    def delticket(opts={}, username, password)
+      # http://tech.dibspayment.com/D2/API/Payment_functions/delticketcgi
+      # https://<username>:<password>@payment.architrade.com/cgi-adm/delticket.cgi
+      opts = {
+        textreply: 'yes',
+        fullreply: 'yes',
+        postype: 'ssl',
+        merchant: @merchant,
+        ticket: '',
+        test: test
+      }.merge(opts)
+      opts.symbolize_keys!
+      check_for_missing_parameter opts, %w{ merchant ticket }
+
+      if opts[:test]
+        opts[:test] = 'yes'
+      else
+        opts.except!(:test)
+      end
+
+      endpoint = '/cgi-adm/delticket.cgi'
+      uri = URI.parse("https://payment.architrade.com#{endpoint}")
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = true
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+      request = Net::HTTP::Post.new(uri.request_uri)
+      request.basic_auth(username, password)
+      request.set_form_data(opts)
+      res = http.request(request)
+
+      ::Dibs::Results::Delticket.new(res.body)
+    end
+
     def call_authorize_with_test_data
-      self.authorize 
+      self.authorize
     end
 
     def capture(opts={})
       opts = {
-        :merchant=>@merchant,
-        :amount=>0,
-        :transact=>'',
-        :orderId=>'',
-        :textreply=>true,
-        :test=>false,
-        :force=>false
+        merchant: @merchant,
+        amount: 0,
+        transact: '',
+        orderId: '',
+        textreply: true,
+        test: test,
+        force: test
       }.merge(opts)
       if opts[:amount].blank? or opts[:transact].blank? or opts[:orderId].blank?
         raise ::Dibs::Errors::ParameterMissingError
@@ -60,7 +124,11 @@ module Dibs
 
     private
       def do_http_post(opts, endpoint)
-        opts[:test] = 'yes' if opts[:test]
+        if opts[:test]
+          opts[:test] = 'yes'
+        else
+          opts.except!(:test)
+        end
         opts[:textreply] = 'yes'
         opts[:fullreply] = 'yes'
         opts[:postype] = 'ssl'
@@ -84,7 +152,7 @@ module Dibs
           end
         end
       end
-    
+
   end
 
 end
